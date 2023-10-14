@@ -75,6 +75,21 @@ func (ft FieldType) rawGoType() string {
 	}
 }
 
+func (ft FieldType) rawTSType() string {
+	switch ft.Kind {
+	case "String":
+		return "string"
+	case "Int", "Long", "Float":
+		return "number"
+	case "Boolean":
+		return "bool"
+	case "ID":
+		return "string"
+	default:
+		return ft.Kind
+	}
+}
+
 func (ft FieldType) IsObject() bool {
 	if ft.Collection {
 		return false
@@ -113,6 +128,22 @@ func (ft FieldType) ZeroValueGo() string {
 	}
 }
 
+func (ft FieldType) ZeroValueTS() string {
+	if ft.Collection {
+		return "[]"
+	}
+	switch ft.Kind {
+	case "String", "ID":
+		return "\"\""
+	case "Int", "Long", "Float":
+		return "0"
+	case "Boolean":
+		return "false"
+	default:
+		return "null"
+	}
+}
+
 func (ft FieldType) GoType() string {
 	if ft.Collection {
 		return "[]" + ft.CollectionSubtype.GoType()
@@ -122,6 +153,18 @@ func (ft FieldType) GoType() string {
 		return ft.rawGoType()
 	} else {
 		return "*" + ft.rawGoType()
+	}
+}
+
+func (ft FieldType) TSType() string {
+	if ft.Collection {
+		return "Array<" + ft.CollectionSubtype.GoType() + ">"
+	}
+
+	if ft.Required {
+		return ft.rawGoType()
+	} else {
+		return ft.rawGoType() + " | null"
 	}
 }
 

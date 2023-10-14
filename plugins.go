@@ -12,3 +12,5 @@ import _ "github.com/mjdrgn/gql-rapid-gen/gen/plugins/go_objects"
 import _ "github.com/mjdrgn/gql-rapid-gen/gen/plugins/tf_appsync_dynamo"
 import _ "github.com/mjdrgn/gql-rapid-gen/gen/plugins/tf_appsync_lambda"
 import _ "github.com/mjdrgn/gql-rapid-gen/gen/plugins/tf_dynamodb"
+
+import _ "github.com/mjdrgn/gql-rapid-gen/gen/plugins/react_crud"

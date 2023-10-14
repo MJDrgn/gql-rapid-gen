@@ -1,0 +1,43 @@
+import {{{$.Object.NameTitle}}, {{$.Object.NameTitle}}State, {{$.Object.NameTitle}}Type} from "../../gql/backend.ts";
+import Form from "react-bootstrap/Form";
+import {Button} from "react-bootstrap";
+import {useState} from "react";
+
+
+type {{$.Object.NameTitle}}FormProps = {
+    startData: {{$.Object.NameTitle}} | undefined;
+    submitLabel: string;
+    submitFunc: (data: {{$.Object.NameTitle}}) => void
+};
+
+function {{$.Object.NameTitle}}Form({ startData, submitLabel, submitFunc }: {{$.Object.NameTitle}}FormProps) {
+
+    {{- range $index, $field := $.Fields}}
+    const [val{{$field.Def.NameTitle}}, setVal{{$field.Def.NameTitle}}] = useState<{{$field.Def.TSType}}>(startData?.{{$field.Def.Name}} ? startData.{{$field.Def.Name}} : {{$field.Def.ZeroValueTS}})
+    {{- end}}
+
+    const submit = () => {
+        const new{{$.Object.NameTitle}}: {{$.Object.NameTitle}} = {
+            {{- range $index, $field := $.Fields}}
+            {{$field.Def.Name}}: val{{$field.Def.NameTitle}},
+            {{- end}}
+        }
+        // TODO validate
+        submitFunc(new{{$.Object.NameTitle}})
+    }
+
+    return (
+        <Form>
+            {{- range $index, $field := $.Fields}}
+            <Form.Group className="mb-3" controlId="form{{$.Object.NameTitle}}">
+                <Form.Label>{{$field.Def.Label}}</Form.Label>
+                {{$field.Input}}
+            </Form.Group>
+            {{- end}}
+            <Button onClick={submit}>{submitLabel}</Button>
+        </Form>
+    )
+
+}
+
+export default {{$.Object.NameTitle}}Form

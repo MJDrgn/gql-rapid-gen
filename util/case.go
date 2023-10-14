@@ -90,3 +90,18 @@ func UnderCase(in string) string {
 	sp := split(in)
 	return strings.Join(sp, "_")
 }
+
+func LabelCase(in string) string {
+	sp := split(in)
+
+	// Uppercase first letter of each segment
+	for i := range sp {
+		if sp[i] == "id" {
+			// ID is an exception
+			sp[i] = "ID"
+			continue
+		}
+		sp[i] = string(unicode.ToUpper([]rune(sp[i])[0])) + sp[i][1:]
+	}
+	return strings.Join(sp, " ")
+}

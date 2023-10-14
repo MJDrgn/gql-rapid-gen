@@ -1,0 +1,79 @@
+import {
+  ApolloError,
+} from "@apollo/client";
+import { {{$.Object.NameTitle}} } from "../../gql/backend.ts";
+import { Key } from "./{{$.Object.NameTitle}}Config.tsx";
+import { Button, Table } from "react-bootstrap";
+import { ShortUUID, UnixDatetime } from "../../helpers.tsx";
+import "../../Styling.sass";
+import "./{{$.Object.NameTitle}}Grid.sass";
+import Loading from "../../Components/Atoms/Loading.tsx";
+
+type {{$.Object.NameTitle}}GridProps = {
+  rows: Map<Key, {{$.Object.NameTitle}}>
+  loading: boolean
+  error: ApolloError | string | undefined
+  refreshFunction: () => void
+  header: string
+}
+
+const {{$.Object.NameTitle}}Grid: React.FC<{{$.Object.NameTitle}}GridProps> = ({rows, loading, error, refreshFunction, header}) => {
+
+  return (
+      <section>
+        <div className="function-type">
+          <header>
+            <section>
+              <div>{header}</div>
+            </section>
+            {loading && (
+              <section>
+                <Loading />
+              </section>
+            )}
+            <section>
+              <Button type="button" variant="primary" onClick={refreshFunction}>
+                <i className="bi-arrow-clockwise"></i>
+              </Button>
+            </section>
+          </header>
+          {error && <div className="error">Error: {typeof error === 'string' ? error : error.message}</div>}
+          {!error && (
+            <div className="crud-grid {{$.Object.NameDash}}-grid">
+              <Table striped bordered responsive size="sm">
+                <thead>
+                  <tr>
+                    {{- range $index, $field := $.Fields}}
+                    <th>{{$field.Def.Label}}</th>
+                    {{- end}}
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.size == 0 && (
+                    <tr>
+                      <td colSpan={8}>No Data Available</td>
+                    </tr>
+                  )}
+                  {Array.from(rows).map(([k, v]) => {
+                    return (
+                      <tr key={k}>
+                        {{- range $index, $field := $.Fields}}
+                        <td className={"grid-column grid-column-{{$.Object.NameDash}} grid-column-{{$.Object.NameDash}}-{{$field.Def.NameDash}}"}>
+                          {{$field.Render}}
+                        </td>
+                        {{- end}}
+                        <td>{/* TODO actions */}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+            </div>
+          )}
+        </div>
+      </section>
+  );
+};
+
+export default {{$.Object.NameTitle}}Grid;

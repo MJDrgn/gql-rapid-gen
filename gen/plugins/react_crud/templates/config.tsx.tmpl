@@ -1,0 +1,13 @@
+// Configuration for {{$.Object.NameTitle}} admin blocks and grids
+
+{{- if $.HasSort}}
+type Key = [{{$.HashKey.Type.TSType}}, {{$.SortKey.Type.TSType}}]
+{{- else}}
+type Key = {{$.HashKey.Type.TSType}}
+{{- end}}
+
+const PageSize = 50
+
+
+export type {Key}
+export {PageSize}

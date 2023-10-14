@@ -1,0 +1,99 @@
+import {
+    ApolloError,
+    gql,
+    TypedDocumentNode,
+    useLazyQuery,
+} from "@apollo/client";
+import { useEffect, useState } from "react";
+import { {{$.Object.NameTitle}}, Query, QueryListAll{{$.Object.NameTitle}}sArgs } from "../../gql/backend.ts";
+import { PageSize, Key } from "./{{$.Object.NameTitle}}Config.tsx";
+import {{$.Object.NameTitle}}Grid from "./{{$.Object.NameTitle}}Grid.tsx";
+
+const LIST: TypedDocumentNode<Query, QueryListAll{{$.Object.NameTitle}}sArgs> = gql`
+  query listAll{{$.Object.NameTitle}}s($limit: Int, $nextToken: String) {
+    listAll{{$.Object.NameTitle}}s(limit: $limit, nextToken: $nextToken) {
+      nextToken
+      items {
+        {{- range $index, $field := $.Fields}}
+        {{$field.Def.Name}}
+        {{- if $field.Fkey }}
+        {{$field.FkeyResolver}} {
+          {{$field.FkeyField}}
+        }
+        {{- end}}
+      }
+    }
+  }
+`;
+
+const {{$.Object.NameTitle}}CRUD: React.FC = () => {
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<ApolloError | undefined>(undefined);
+
+    const [getData] = useLazyQuery(LIST, {
+        fetchPolicy: "network-only",
+    });
+
+    const [rows, setRows] = useState<Map<Key, {{$.Object.NameTitle}}>>(new Map<Key, {{$.Object.NameTitle}}>());
+
+    const fetchData = async (token: string | null) => {
+        const result = await getData({
+            variables: {
+                limit: PageSize,
+                nextToken: token,
+            },
+        });
+        if (result.error) {
+            throw result.error;
+        }
+        return result;
+    };
+
+    const loadData = async () => {
+        try {
+            let token = null;
+            const map = new Map<Key, {{$.Object.NameTitle}}>();
+            do {
+                const result = await fetchData(token);
+                const resp = result.data!.listAll{{$.Object.NameTitle}}s!;
+                resp.items.forEach((i) => {
+                    map.set(i.id, i);
+                });
+                token = resp.nextToken;
+            } while (token);
+            setRows(map);
+        } catch (e) {
+            if (e instanceof ApolloError) {
+                setError(e);
+            } else if (typeof e === "string")
+                setError(new ApolloError({ errorMessage: e }));
+            else {
+                setError(new ApolloError({ errorMessage: "Unknown error occurred" }));
+            }
+        }
+    };
+
+    const doRefresh = async () => {
+        setLoading(true);
+        try {
+            await loadData();
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        doRefresh();
+    }, []);
+
+
+
+    return (
+        <div className="main-section">
+            <header>Administration</header>
+            <{{$.Object.NameTitle}}Grid rows={rows} loading={loading} error={error} refreshFunction={doRefresh} header={"{{$.Object.NameTitle}} Administration"}/>
+        </div>
+    );
+};
+
+export default {{$.Object.NameTitle}}CRUD;

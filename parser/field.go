@@ -64,6 +64,10 @@ func (pf *ParsedField) NameDash() string {
 	return util.DashCase(pf.Name)
 }
 
+func (pf *ParsedField) Label() string {
+	return util.LabelCase(pf.Name)
+}
+
 func (pf *ParsedField) HasDirective(key string) bool {
 	_, ok := pf.Directives[key]
 	return ok
